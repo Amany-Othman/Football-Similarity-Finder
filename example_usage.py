@@ -1,11 +1,11 @@
 """
-Example Usage Script - FIXED VERSION (Windows Compatible)
-==========================================================
+Example Usage Script - CROSS-GAME COMPARISON VERSION
+====================================================
 
-Fixed issues:
-1. Windows UTF-8 encoding properly configured
-2. All Unicode arrows replaced with ASCII '->'
-3. Pattern statistics now correctly displays positions
+This version finds similar patterns BETWEEN different games,
+not just within the same game.
+
+Key change: same_game_comparison: False
 """
 
 import sys
@@ -123,31 +123,48 @@ def filter_sequences_intelligently(sequences, max_sequences=500):
     
     print(f"\nFiltering {len(sequences)} sequences to reduce comparisons...")
     
-    # Group by length
-    by_length = defaultdict(list)
+    # Group by game AND length for better cross-game representation
+    by_game_and_length = defaultdict(list)
     for seq in sequences:
-        by_length[len(seq)].append(seq)
+        by_game_and_length[(seq.game_id, len(seq))].append(seq)
     
-    print(f"  Sequences by length:")
-    for length in sorted(by_length.keys()):
-        print(f"    {length} passes: {len(by_length[length])} sequences")
+    print(f"  Sequences by game and length:")
+    games = set(seq.game_id for seq in sequences)
+    print(f"  Total unique games: {len(games)}")
     
-    # Sample from each length group, prioritizing longer sequences
+    for game_id in sorted(games):
+        game_seqs = [s for s in sequences if s.game_id == game_id]
+        print(f"    Game {game_id}: {len(game_seqs)} sequences")
+    
+    # Sample evenly from each game to ensure cross-game comparisons
     filtered = []
-    total_weight = sum(length * len(seqs) for length, seqs in by_length.items())
+    sequences_per_game = max_sequences // len(games)
     
-    for length, seqs in sorted(by_length.items(), reverse=True):
-        weight = length * len(seqs)
-        target_count = int((weight / total_weight) * max_sequences)
-        target_count = max(target_count, min(10, len(seqs)))
+    for game_id in games:
+        game_seqs = [s for s in sequences if s.game_id == game_id]
         
-        if len(seqs) <= target_count:
-            filtered.extend(seqs)
-        else:
-            sampled = random.sample(seqs, target_count)
-            filtered.extend(sampled)
+        # Group by length within this game
+        by_length = defaultdict(list)
+        for seq in game_seqs:
+            by_length[len(seq)].append(seq)
+        
+        # Sample from each length group
+        game_sample = []
+        for length, seqs in sorted(by_length.items(), reverse=True):
+            # Prioritize longer sequences
+            target = min(len(seqs), max(1, sequences_per_game // len(by_length)))
+            game_sample.extend(random.sample(seqs, target))
+        
+        # If we didn't get enough, add more
+        if len(game_sample) < sequences_per_game and len(game_seqs) > len(game_sample):
+            remaining = [s for s in game_seqs if s not in game_sample]
+            additional = min(sequences_per_game - len(game_sample), len(remaining))
+            game_sample.extend(random.sample(remaining, additional))
+        
+        filtered.extend(game_sample[:sequences_per_game])
     
     print(f"\n  Filtered down to: {len(filtered)} sequences")
+    print(f"  Sequences per game: ~{len(filtered) // len(games)}")
     print(f"  Comparisons reduced from {len(sequences)*(len(sequences)-1)//2:,} to {len(filtered)*(len(filtered)-1)//2:,}")
     print()
     
@@ -158,7 +175,7 @@ def main():
     """Main execution function"""
     
     print("=" * 80)
-    print("FOOTBALL PASS SIMILARITY ANALYZER - WITH ACTUAL POSITIONS")
+    print("FOOTBALL PASS SIMILARITY ANALYZER - CROSS-GAME COMPARISON")
     print("=" * 80)
     print()
     
@@ -181,7 +198,7 @@ def main():
         'sequence_weight': 0.15,
         
         # Analysis options
-        'same_game_comparison': True,
+        'same_game_comparison': False,  # ← KEY CHANGE: Compare ACROSS games
         'spatial_tolerance': 10.0,
         'ngram_size': 3,
         
@@ -192,6 +209,7 @@ def main():
     analyzer = PassSimilarityAnalyzer(config)
     print("[OK] Analyzer configured")
     print("  Using ACTUAL player positions from data (not approximations!)")
+    print("  ⚠️  CROSS-GAME MODE: Will compare patterns between different games")
     print()
     
     # Step 2: Load and prepare data
@@ -216,6 +234,13 @@ def main():
             print("\n[WARNING] No sequences found!")
             return
         
+        # Show game distribution
+        from collections import Counter
+        game_dist = Counter(seq.game_id for seq in sequences)
+        print(f"\n  Sequences by game:")
+        for game_id in sorted(game_dist.keys()):
+            print(f"    Game {game_id}: {game_dist[game_id]} sequences")
+        
         print()
     except Exception as e:
         print(f"[ERROR] Failed to extract sequences: {e}")
@@ -234,14 +259,15 @@ def main():
         print()
     
     # Step 4: Find similar patterns
-    print("Step 4: Finding similar passing patterns...")
+    print("Step 4: Finding similar passing patterns ACROSS GAMES...")
     total_comparisons = len(sequences) * (len(sequences) - 1) // 2
     print(f"  Will perform {total_comparisons:,} comparisons")
+    print(f"  Note: Only comparing sequences from DIFFERENT games")
     print()
     
     try:
         results = analyzer.find_similar_patterns(sequences, top_k=20)
-        print(f"[OK] Found {len(results)} similar patterns")
+        print(f"[OK] Found {len(results)} similar patterns across different games")
         print()
     except Exception as e:
         print(f"[ERROR] Failed to find similar patterns: {e}")
@@ -254,7 +280,6 @@ def main():
         print("Step 5: Generating analysis report...")
         try:
             report = analyzer.generate_report(results)
-            # Already uses ASCII arrows in the algorithm
             print(report)
         except Exception as e:
             print(f"[ERROR] Failed to generate report: {e}")
@@ -264,17 +289,17 @@ def main():
         # Step 6: Export results
         print("Step 6: Exporting results...")
         try:
-            analyzer.export_results(results, 'similarity_results_with_positions.json')
-            print("[OK] Results exported to: similarity_results_with_positions.json")
+            analyzer.export_results(results, 'similarity_results_cross_game.json')
+            print("[OK] Results exported to: similarity_results_cross_game.json")
             print()
         except Exception as e:
             print(f"[ERROR] Failed to export results: {e}")
             import traceback
             traceback.print_exc()
         
-        # Step 7: Additional analysis
+        # Step 7: Additional analysis - Focus on cross-game patterns
         print("=" * 80)
-        print("ADDITIONAL INSIGHTS")
+        print("CROSS-GAME PATTERN ANALYSIS")
         print("=" * 80)
         print()
         
@@ -288,6 +313,18 @@ def main():
         print(f"Average Spatial Similarity: {sum(spatial_sims)/len(spatial_sims):.2%}")
         print()
         
+        # Game pair analysis
+        from collections import Counter
+        game_pairs = Counter()
+        for result in results:
+            pair = tuple(sorted([result.seq1.game_id, result.seq2.game_id]))
+            game_pairs[pair] += 1
+        
+        print("Most common game pairs with similar patterns:")
+        for (game1, game2), count in game_pairs.most_common(10):
+            print(f"  Game {game1} ↔ Game {game2}: {count} similar patterns")
+        print()
+        
         # Sequence length distribution
         seq_lengths = {}
         for result in results:
@@ -299,40 +336,27 @@ def main():
             print(f"  {length} passes: {seq_lengths[length]} patterns")
         print()
         
-        # Most common patterns WITH ACTUAL POSITIONS (safe encoding - already ASCII)
+        # Most common cross-game patterns
         from collections import Counter
         all_patterns = []
         for result in results:
-            # Already using ASCII arrow from generate_report
             pattern_parts = []
             for e in result.seq1.pattern:
                 pattern_parts.append(f"{e['from']}->{e['to']}")
             pattern = ' -> '.join(pattern_parts)
             all_patterns.append(pattern)
         
-        print("Most Common Pattern Types (with actual positions!):")
+        print("Most Common Cross-Game Pattern Types:")
         for pattern, count in Counter(all_patterns).most_common(10):
             print(f"  {count}x: {pattern}")
         print()
         
-        # Analyze specific position usage
-        print("\nPosition Transition Analysis:")
-        position_pairs = Counter()
-        for result in results:
-            for event in result.seq1.pattern:
-                position_pairs[(event['from'], event['to'])] += 1
-        
-        print("Most common position-to-position passes in similar patterns:")
-        for (pos_from, pos_to), count in position_pairs.most_common(15):
-            print(f"  {pos_from} -> {pos_to}: {count} occurrences")
-        print()
-        
-        # Show some example patterns in detail
-        print("\nExample Similar Patterns (Top 5):")
+        # Show top cross-game matches
+        print("\nTop 5 Cross-Game Matches:")
         print("=" * 80)
         for i, result in enumerate(results[:5], 1):
-            print(f"\nPattern #{i} (Similarity: {result.overall_score:.1%})")
-            print(f"  Game {result.seq1.game_id} vs Game {result.seq2.game_id}")
+            print(f"\nMatch #{i} (Similarity: {result.overall_score:.1%})")
+            print(f"  Game {result.seq1.game_id} ↔ Game {result.seq2.game_id}")
             print(f"  Length: {len(result.seq1)} passes")
             
             # Pattern 1
@@ -341,7 +365,7 @@ def main():
                 pattern1_parts.append(f"{event.position_from}")
             pattern1_parts.append(result.seq1.events[-1].position_to)
             pattern1_str = " -> ".join(pattern1_parts)
-            print(f"  Sequence 1: {pattern1_str}")
+            print(f"  Pattern 1: {pattern1_str}")
             
             # Pattern 2
             pattern2_parts = []
@@ -349,21 +373,23 @@ def main():
                 pattern2_parts.append(f"{event.position_from}")
             pattern2_parts.append(result.seq2.events[-1].position_to)
             pattern2_str = " -> ".join(pattern2_parts)
-            print(f"  Sequence 2: {pattern2_str}")
+            print(f"  Pattern 2: {pattern2_str}")
             
-            print(f"  Details:")
-            print(f"    - Sequence Similarity: {result.sequence_similarity:.1%}")
-            print(f"    - Spatial Similarity:  {result.spatial_similarity:.1%}")
-            print(f"    - Temporal Similarity: {result.temporal_similarity:.1%}")
+            print(f"  Metrics:")
+            print(f"    - Sequence:  {result.sequence_similarity:.1%}")
+            print(f"    - Spatial:   {result.spatial_similarity:.1%}")
+            print(f"    - Temporal:  {result.temporal_similarity:.1%}")
+            print(f"    - Structural: {result.structural_similarity:.1%}")
         
         print("\n" + "=" * 80)
         
     else:
-        print("\n[INFO] No similar patterns found.")
+        print("\n[INFO] No similar patterns found across different games.")
         print("Try adjusting these parameters:")
         print("  - Lower similarity_threshold (currently 0.65)")
         print("  - Increase max_time_gap (currently 8.0 seconds)")
         print("  - Reduce min_sequence_length (currently 4)")
+        print("  - Check if you have enough games in your dataset")
     
     print("\n" + "=" * 80)
     print("ANALYSIS COMPLETE!")
@@ -371,8 +397,9 @@ def main():
     print()
     print("Summary:")
     print(f"  - Total sequences analyzed: {len(sequences)}")
-    print(f"  - Similar patterns found: {len(results)}")
-    print(f"  - Results saved to: similarity_results_with_positions.json")
+    print(f"  - Similar cross-game patterns found: {len(results)}")
+    print(f"  - Results saved to: similarity_results_cross_game.json")
+    print(f"  - Load the JSON in the visualizer to see pitch comparisons!")
     print()
 
 
