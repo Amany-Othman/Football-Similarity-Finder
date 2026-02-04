@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pass Similarity Results Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0f0d;
+            color: #e8f5f0;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0a4d3c 0%, #0d6b4f 100%);
+            padding: 2rem;
+            border-bottom: 2px solid #00ff9d;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #00ff9d;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .upload-section {
+            background: #121816;
+            border: 2px dashed #1f2e28;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: #00ff9d;
+            background: rgba(0, 255, 157, 0.05);
+        }
+
+        .upload-section h2 {
+            color: #00ff9d;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00ff9d, #00cc7d);
+            color: #0a0f0d;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 255, 157, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #121816;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #1f2e28;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff9d;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #8fa39a;
+            margin-top: 0.5rem;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .similarity-card {
+            background: #121816;
+            border: 1px solid #1f2e28;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .similarity-card:hover {
+            border-color: #00ff9d;
+            transform: translateX(4px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1f2e28;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .similarity-score {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .score-high {
+            color: #00ff9d;
+        }
+
+        .score-medium {
+            color: #ffd700;
+        }
+
+        .score-low {
+            color: #ff4d6a;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric {
+            background: #0a0f0d;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #8fa39a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #00ff9d;
+            margin-top: 0.25rem;
+        }
+
+        .pattern-box {
+            background: #0a0f0d;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .pattern-label {
+            color: #00ff9d;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .pattern-text {
+            color: #e8f5f0;
+            word-break: break-word;
+        }
+
+        .arrow {
+            color: #00ff9d;
+            margin: 0 0.5rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .info-box {
+            background: rgba(0, 255, 157, 0.1);
+            border-left: 4px solid #00ff9d;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>⚽ Pass Similarity Results Viewer</h1>
+        <p>View your pre-analyzed similarity results</p>
+    </div>
+
+    <div class="container">
+        <div class="info-box">
+            <p><strong>📁 Load Results:</strong> Select your <code>similarity_results.json</code> file to view the
+                analysis results from the Python script.</p>
+        </div>
+
+        <div class="upload-section" id="uploadSection">
+            <h2>📊 Load Results File</h2>
+            <p style="color: #8fa39a; margin-bottom: 1.5rem;">Click to select similarity_results.json</p>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                Choose File
+            </button>
+            <input type="file" id="fileInput" accept=".json">
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="stats-grid" id="statsGrid"></div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        displayResults(data);
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function displayResults(data) {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('resultsSection').classList.add('show');
+
+            const results = data.results;
+            const config = data.config;
+
+            // Calculate statistics
+            const avgScore = results.reduce((sum, r) => sum + r.overall_score, 0) / results.length;
+            const avgSeq = results.reduce((sum, r) => sum + r.sequence_similarity, 0) / results.length;
+            const avgSpatial = results.reduce((sum, r) => sum + r.spatial_similarity, 0) / results.length;
+
+            // Display stats
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${results.length}</div>
+                    <div class="stat-label">Total Matches Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(avgScore * 100).toFixed(1)}%</div>
+                    <div class="stat-label">Avg Overall Similarity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(avgSeq * 100).toFixed(1)}%</div>
+                    <div class="stat-label">Avg Sequence Similarity</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${(avgSpatial * 100).toFixed(1)}%</div>
+                    <div class="stat-label">Avg Spatial Similarity</div>
+                </div>
+            `;
+
+            // Display results
+            const resultsHTML = results.map((result, index) => {
+                const score = result.overall_score * 100;
+                const scoreClass = score >= 85 ? 'score-high' :
+                    score >= 70 ? 'score-medium' : 'score-low';
+
+                return `
+                    <div class="similarity-card">
+                        <div class="card-header">
+                            <div class="card-title">Match #${index + 1}</div>
+                            <div class="similarity-score ${scoreClass}">${score.toFixed(1)}%</div>
+                        </div>
+
+                        <p style="color: #8fa39a; margin-bottom: 1rem;">
+                            Game ${result.game1} ↔ Game ${result.game2}
+                        </p>
+
+                        <div class="metrics-grid">
+                            <div class="metric">
+                                <div class="metric-label">Sequence</div>
+                                <div class="metric-value">${(result.sequence_similarity * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Spatial</div>
+                                <div class="metric-value">${(result.spatial_similarity * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Temporal</div>
+                                <div class="metric-value">${(result.temporal_similarity * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Structural</div>
+                                <div class="metric-value">${(result.structural_similarity * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+
+                        <div class="pattern-box">
+                            <div class="pattern-label">Pattern 1:</div>
+                            <div class="pattern-text">${result.pattern1.join(' → ')}</div>
+                        </div>
+
+                        <div class="pattern-box">
+                            <div class="pattern-label">Pattern 2:</div>
+                            <div class="pattern-text">${result.pattern2.join(' → ')}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('resultsContent').innerHTML = resultsHTML;
+        }
+    </script>
+</body>
+
+</html>

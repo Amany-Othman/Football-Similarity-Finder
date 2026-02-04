@@ -1,0 +1,555 @@
+{
+  "config": {
+    "min_sequence_length": 4,
+    "max_sequence_length": 8,
+    "similarity_threshold": 0.65,
+    "position_weight": 0.3,
+    "spatial_weight": 0.25,
+    "temporal_weight": 0.15,
+    "structural_weight": 0.15,
+    "sequence_weight": 0.15,
+    "same_game_comparison": true,
+    "max_time_gap": 8.0,
+    "spatial_tolerance": 10.0,
+    "ngram_size": 3
+  },
+  "num_results": 20,
+  "results": [
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9329559699520655,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9948596191167385,
+      "temporal_similarity": 0.9723213868668251,
+      "structural_similarity": 0.9642857142857142,
+      "pattern1": [
+        "DF->FW",
+        "FW->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->MF",
+        "MF->FW",
+        "FW->DF",
+        "DF->FW"
+      ],
+      "pattern2": [
+        "DF->FW",
+        "FW->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->MF",
+        "MF->FW",
+        "FW->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9326346790805911,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9929215942384602,
+      "temporal_similarity": 0.9734094891874597,
+      "structural_similarity": 0.9642857142857142,
+      "pattern1": [
+        "GK->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->FW"
+      ],
+      "pattern2": [
+        "GK->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9308855578745034,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9951809541271119,
+      "temporal_similarity": 0.9460783194276928,
+      "structural_similarity": 0.9761904761904763,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->MF",
+        "MF->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->MF",
+        "MF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.9301075683868285,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9913384380017228,
+      "temporal_similarity": 0.9663435354331283,
+      "structural_similarity": 0.9571428571428573,
+      "pattern1": [
+        "MF->DF",
+        "DF->GK",
+        "GK->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->MF",
+        "MF->DF",
+        "DF->GK"
+      ],
+      "pattern2": [
+        "MF->DF",
+        "DF->GK",
+        "GK->MF",
+        "MF->DF",
+        "DF->FW",
+        "FW->MF",
+        "MF->DF"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9291900592212121,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9965874771063039,
+      "temporal_similarity": 0.9086212662975732,
+      "structural_similarity": 1.0,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9272551067452222,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9900425397000541,
+      "temporal_similarity": 0.9494869549918661,
+      "structural_similarity": 0.9571428571428571,
+      "pattern1": [
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9241688535675241,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9778883444197409,
+      "temporal_similarity": 0.9598832116553538,
+      "structural_similarity": 0.9464285714285715,
+      "pattern1": [
+        "DF->GK",
+        "GK->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->UNKNOWN"
+      ],
+      "pattern2": [
+        "GK->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->UNKNOWN"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10513,
+      "overall_score": 0.9237475693752898,
+      "sequence_similarity": 0.9109614145073689,
+      "spatial_similarity": 0.9529443407385331,
+      "temporal_similarity": 0.8371923177489367,
+      "structural_similarity": 1.0,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9234184258236589,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9853070329323856,
+      "temporal_similarity": 0.9389444506037499,
+      "structural_similarity": 0.95,
+      "pattern1": [
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF"
+      ],
+      "pattern2": [
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9224220814354334,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9962458050674163,
+      "temporal_similarity": 0.9557375344571952,
+      "structural_similarity": 0.9619047619047618,
+      "pattern1": [
+        "DF->DF",
+        "DF->MF",
+        "MF->FW",
+        "FW->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->MF",
+        "MF->FW",
+        "FW->GK",
+        "GK->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9221625014435941,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9783616876235691,
+      "temporal_similarity": 0.9278614826322984,
+      "structural_similarity": 0.9642857142857142,
+      "pattern1": [
+        "GK->FW",
+        "FW->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "GK->FW",
+        "FW->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9218885054821282,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9801935103753845,
+      "temporal_similarity": 0.9289341859218806,
+      "structural_similarity": 0.9583333333333334,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->UNKNOWN"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3846,
+      "game2": 10513,
+      "overall_score": 0.9194249897019273,
+      "sequence_similarity": 0.9172245168413246,
+      "spatial_similarity": 0.9520637683020077,
+      "temporal_similarity": 0.7910534336521948,
+      "structural_similarity": 1.0,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9190037815598284,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9840581010972658,
+      "temporal_similarity": 0.9032617085700803,
+      "structural_similarity": 0.9583333333333334,
+      "pattern1": [
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->FW",
+        "FW->GK"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->FW"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9185675222526928,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9857595108717346,
+      "temporal_similarity": 0.9475176302317273,
+      "structural_similarity": 0.9619047619047618,
+      "pattern1": [
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "DF->GK",
+        "GK->DF",
+        "DF->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3846,
+      "game2": 3846,
+      "overall_score": 0.9185207926987267,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9916120016914045,
+      "temporal_similarity": 0.8886424246963132,
+      "structural_similarity": 0.9571428571428571,
+      "pattern1": [
+        "DF->FW",
+        "FW->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK"
+      ],
+      "pattern2": [
+        "DF->FW",
+        "FW->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3846,
+      "game2": 3846,
+      "overall_score": 0.9178623598681097,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9916012027100086,
+      "temporal_similarity": 0.9267311882548438,
+      "structural_similarity": 0.9682539682539683,
+      "pattern1": [
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "DF->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.9176054680629018,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9836498954631064,
+      "temporal_similarity": 0.9541437708379773,
+      "structural_similarity": 0.9523809523809523,
+      "pattern1": [
+        "GK->DF",
+        "DF->GK",
+        "GK->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->GK"
+      ],
+      "pattern2": [
+        "GK->DF",
+        "DF->GK",
+        "GK->FW",
+        "FW->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9175442305015533,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9934636261066652,
+      "temporal_similarity": 0.9611888264992461,
+      "structural_similarity": 0.9285714285714286,
+      "pattern1": [
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->MF"
+      ],
+      "pattern2": [
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->MF"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.917116587726061,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9871839943820238,
+      "temporal_similarity": 0.9330896418227483,
+      "structural_similarity": 0.9642857142857143,
+      "pattern1": [
+        "FW->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF",
+        "DF->DF"
+      ],
+      "pattern2": [
+        "FW->DF",
+        "DF->DF",
+        "DF->GK",
+        "GK->DF",
+        "DF->DF",
+        "DF->DF"
+      ]
+    }
+  ]
+}
