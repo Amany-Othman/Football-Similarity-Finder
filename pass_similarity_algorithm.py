@@ -1,9 +1,9 @@
 """
-Modified Pass Similarity Analyzer for single-pass-per-possession data structure
-================================================================================
+Pass Similarity Analyzer - USING ACTUAL POSITION DATA
+======================================================
 
-This version reconstructs passing sequences by linking consecutive passes
-where receiver becomes the next passer.
+This version uses real player positions from the positiongrouptype column
+instead of arbitrary ID-based approximations.
 """
 
 import pandas as pd
@@ -73,7 +73,7 @@ class SimilarityResult:
 
 class PassSimilarityAnalyzer:
     """
-    Modified analyzer for data where each possession is a single pass event.
+    Pass similarity analyzer using ACTUAL player positions from data.
     """
     
     def __init__(self, config: Dict = None):
@@ -89,16 +89,21 @@ class PassSimilarityAnalyzer:
             'same_game_comparison': False,
             'max_time_gap': 5.0,
             'spatial_tolerance': 10.0,
-            'ngram_size': 3
+            'ngram_size': 3,
+            'use_detailed_positions': True  # Use specific positions like RCB, LW, etc.
         }
         self.config = {**default_config, **(config or {})}
         
+        # Position hierarchy for general grouping (optional)
         self.position_hierarchy = {
             'GK': 1,
             'DF': 2,
             'MF': 3,
             'FW': 4
         }
+        
+        # Player position cache
+        self.player_position_cache = {}
     
     def load_data(self, raw_data_path: str, normalized_data_path: str, 
                   filtered_data_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -114,41 +119,195 @@ class PassSimilarityAnalyzer:
         
         return raw_df, normalized_df, filtered_df
     
-    def map_player_to_position(self, player_id: str, player_mapping: Dict = None) -> str:
-        """Map player ID to position category."""
-        if player_mapping and player_id in player_mapping:
-            return player_mapping[player_id]
+    def build_player_position_map(self, raw_df: pd.DataFrame, normalized_df: pd.DataFrame) -> Dict[str, str]:
+        """
+        Build a mapping from player_id to position using event matching.
+        Links raw pass data to normalized position data using gameeventid.
+        
+        Args:
+            raw_df: Raw data with passerplayerid, receiverplayerid, gameeventid
+            normalized_df: Normalized data with playerid, positiongrouptype, gameeventid
+        
+        Returns:
+            Dict mapping player_id (as string) to position string (e.g., 'RCB', 'CM', 'LW')
+        """
+        print("\nBuilding player position mapping from actual data...")
+        
+        position_map = {}
+        
+        # Check if required columns exist
+        required_norm_cols = ['gameeventid', 'playerid', 'positiongrouptype']
+        missing_cols = [col for col in required_norm_cols if col not in normalized_df.columns]
+        
+        if missing_cols:
+            print(f"  [WARNING] Missing columns in normalized data: {missing_cols}")
+            print(f"  Available columns: {list(normalized_df.columns)}")
+            return {}
+        
+        # Strategy: For each unique gameeventid in raw data, find all players in that event
+        # from normalized data and map their positions
+        print("  [INFO] Linking raw passes to normalized positions via gameeventid...")
+        
+        # Helper function to normalize player ID (handle float vs int issue)
+        def normalize_player_id(player_id):
+            """Convert player ID to standardized string format (handle float/int/nan)."""
+            if pd.isna(player_id):
+                return None
+            # Convert float to int to remove .0, then to string
+            try:
+                return str(int(float(player_id)))
+            except (ValueError, TypeError):
+                return str(player_id)
+        
+        # Build a lookup of gameeventid -> list of (playerid, position)
+        event_player_map = {}
+        for _, row in normalized_df.iterrows():
+            event_id = row['gameeventid']
+            player_id = normalize_player_id(row['playerid'])
+            position = row['positiongrouptype']
+            
+            # Skip if position is NaN or empty, or player_id is None
+            if pd.isna(position) or position == '' or player_id is None:
+                continue
+            
+            if event_id not in event_player_map:
+                event_player_map[event_id] = []
+            event_player_map[event_id].append((player_id, position))
+        
+        print(f"  [OK] Found position data for {len(event_player_map)} game events")
+        
+        # Now map raw player IDs to positions using gameeventid
+        mapped_count = 0
+        for _, row in raw_df.iterrows():
+            event_id = row['gameeventid']
+            passer_id = normalize_player_id(row['playerpass'])
+            receiver_id = normalize_player_id(row['receiveplay'])
+            
+            # Skip if either player ID is None (NaN in original data)
+            if passer_id is None or receiver_id is None:
+                continue
+            
+            if event_id in event_player_map:
+                # Find positions for both passer and receiver in this event
+                for player_id, position in event_player_map[event_id]:
+                    if player_id == passer_id:
+                        if passer_id not in position_map:
+                            position_map[passer_id] = position
+                            mapped_count += 1
+                    if player_id == receiver_id:
+                        if receiver_id not in position_map:
+                            position_map[receiver_id] = position
+                            mapped_count += 1
+        
+        print(f"  [OK] Mapped {len(position_map)} unique players to positions")
+        
+        if len(position_map) == 0:
+            print(f"  [WARNING] No players were mapped! Checking for issues...")
+            print(f"  [DEBUG] Sample raw player IDs: {[normalize_player_id(x) for x in raw_df['playerpass'].head(5)]}")
+            print(f"  [DEBUG] Sample norm player IDs: {[normalize_player_id(x) for x in normalized_df['playerid'].head(5)]}")
+        
+        # Show position distribution
+        position_counts = {}
+        for pos in position_map.values():
+            position_counts[pos] = position_counts.get(pos, 0) + 1
+        
+        print(f"\n  Position distribution:")
+        for pos in sorted(position_counts.keys()):
+            print(f"    {pos}: {position_counts[pos]}")
+        print()
+        
+        return position_map
+    
+    def get_player_position(self, player_id: str, position_map: Dict[str, str]) -> str:
+        """
+        Get the actual position of a player.
+        
+        Args:
+            player_id: Player ID as string (or float/int)
+            position_map: Dict mapping player_id to position
+        
+        Returns:
+            Position string (e.g., 'RCB', 'CM', 'LW') or 'UNKNOWN'
+        """
+        # Normalize player ID (handle float with .0)
+        if pd.isna(player_id):
+            return 'UNKNOWN'
         
         try:
-            pid = int(float(player_id))  # Handle float player IDs
-            if pid == 1 or pid == 10:
-                return 'GK'
-            elif pid <= 500:
-                return 'DF'
-            elif pid <= 2000:
-                return 'MF'
-            else:
-                return 'FW'
+            player_id_normalized = str(int(float(player_id)))
         except (ValueError, TypeError):
+            player_id_normalized = str(player_id)
+        
+        if player_id_normalized in position_map:
+            return position_map[player_id_normalized]
+        else:
             return 'UNKNOWN'
     
+    def group_position(self, detailed_position: str) -> str:
+        """
+        Optional: Group detailed positions into broader categories.
+        E.g., RCB, LCB, CB -> DF
+        """
+        if pd.isna(detailed_position) or detailed_position == 'UNKNOWN':
+            return 'UNKNOWN'
+        
+        pos_upper = detailed_position.upper()
+        
+        # Goalkeeper
+        if 'GK' in pos_upper:
+            return 'GK'
+        
+        # Defenders (CB, RCB, LCB, RB, LB, RWB, LWB)
+        if any(x in pos_upper for x in ['CB', 'RB', 'LB', 'WB', 'DF']):
+            return 'DF'
+        
+        # Midfielders (CM, CDM, CAM, RM, LM, RW, LW if they're midfielders)
+        if any(x in pos_upper for x in ['CM', 'DM', 'AM', 'MF']):
+            return 'MF'
+        
+        # Forwards (CF, ST, LW, RW if they're forwards)
+        if any(x in pos_upper for x in ['CF', 'ST', 'FW']):
+            return 'FW'
+        
+        # Wingers - could be MF or FW depending on context
+        if any(x in pos_upper for x in ['LW', 'RW', 'W']):
+            return 'FW'  # Default to forward for wingers
+        
+        return detailed_position  # Keep original if can't categorize
+    
     def extract_sequences(self, raw_df: pd.DataFrame, 
+                         normalized_df: pd.DataFrame = None,
                          ball_df: pd.DataFrame = None) -> List[PassSequence]:
         """
-        Extract passing sequences by linking consecutive passes.
-        In this data structure, each row is a single pass, so we need to
-        link passes where the receiver becomes the next passer.
+        Extract passing sequences using ACTUAL player positions from data.
+        
+        Args:
+            raw_df: Raw pass data with playerpass, receiveplay columns
+            normalized_df: Normalized data with playerid and positiongrouptype columns (for positions)
+            ball_df: Ball position data with ball_x, ball_y columns (optional)
         """
         sequences = []
         min_len = self.config['min_sequence_length']
         max_len = self.config['max_sequence_length']
         max_gap = self.config['max_time_gap']
+        use_detailed = self.config['use_detailed_positions']
         
         print(f"\nExtracting sequences with:")
         print(f"  - Min length: {min_len} passes")
         print(f"  - Max length: {max_len} passes")
         print(f"  - Max time gap: {max_gap} seconds")
+        print(f"  - Use detailed positions: {use_detailed}")
         print()
+        
+        # Build player position mapping from normalized data
+        position_map = {}
+        if normalized_df is not None:
+            position_map = self.build_player_position_map(raw_df, normalized_df)
+        
+        if not position_map:
+            print("[ERROR] Could not build player position map!")
+            print("Make sure normalized_df contains: gameeventid, playerid, positiongrouptype columns")
+            return []
         
         # Group by game
         for game_id, game_group in raw_df.groupby('gameid'):
@@ -161,22 +320,47 @@ class PassSimilarityAnalyzer:
             current_seq = []
             
             for idx, row in game_group.iterrows():
+                # Get actual positions from the mapping
+                # Normalize player IDs to handle float vs int issue
+                player_from_id = row['playerpass']
+                player_to_id = row['receiveplay']
+                
+                # Skip if either player is NaN
+                if pd.isna(player_from_id) or pd.isna(player_to_id):
+                    continue
+                
+                # Normalize to string (convert float to int first to remove .0)
+                try:
+                    player_from_id = str(int(float(player_from_id)))
+                    player_to_id = str(int(float(player_to_id)))
+                except (ValueError, TypeError):
+                    continue
+                
+                position_from = self.get_player_position(player_from_id, position_map)
+                position_to = self.get_player_position(player_to_id, position_map)
+                
+                # Optionally group into broader categories
+                if not use_detailed:
+                    position_from = self.group_position(position_from)
+                    position_to = self.group_position(position_to)
+                
                 # Create pass event
                 event = PassEvent(
                     game_id=game_id,
                     possession_id=row['possessione'],
-                    player_from=str(row['playerpass']),
-                    player_to=str(row['receiveplay']),
-                    position_from=self.map_player_to_position(row['playerpass']),
-                    position_to=self.map_player_to_position(row['receiveplay']),
+                    player_from=player_from_id,
+                    player_to=player_to_id,
+                    position_from=position_from,
+                    position_to=position_to,
                     start_time=row['starttime'],
                     end_time=row['endtime'],
                     duration=row['duration'],
                     event_type=row['eventtype']
                 )
                 
-                # Add ball position if available
+                # Add ball position if available from ball_df
                 if ball_df is not None:
+                    # Find matching ball position
                     ball_row = ball_df[
                         (ball_df['gameid'] == game_id) & 
                         (abs(ball_df['starttime'] - row['starttime']) < 0.1)
@@ -214,7 +398,52 @@ class PassSimilarityAnalyzer:
             print(f"  Found {len([s for s in sequences if s.game_id == game_id])} sequences")
         
         print(f"\nTotal extracted: {len(sequences)} sequences")
+        
+        # Show pattern statistics
+        self._print_pattern_statistics(sequences)
+        
         return sequences
+    
+    def _print_pattern_statistics(self, sequences: List[PassSequence]):
+        """Print statistics about extracted patterns."""
+        print("\n" + "="*60)
+        print("PATTERN STATISTICS")
+        print("="*60)
+        
+        if not sequences:
+            print("\nNo sequences to analyze.")
+            return
+        
+        # Collect all positions used from PATTERN (not events directly)
+        positions_used = set()
+        for seq in sequences:
+            for pattern_event in seq.pattern:
+                if pattern_event.get('from') and pattern_event['from'] != 'UNKNOWN':
+                    positions_used.add(pattern_event['from'])
+                if pattern_event.get('to') and pattern_event['to'] != 'UNKNOWN':
+                    positions_used.add(pattern_event['to'])
+        
+        print(f"\nUnique positions found: {len(positions_used)}")
+        if positions_used:
+            print(f"Positions: {sorted(positions_used)}")
+        
+        # Most common transitions - use PATTERN data
+        transitions = defaultdict(int)
+        for seq in sequences:
+            for pattern_event in seq.pattern:
+                pos_from = pattern_event.get('from')
+                pos_to = pattern_event.get('to')
+                if (pos_from and pos_from != 'UNKNOWN' and 
+                    pos_to and pos_to != 'UNKNOWN'):
+                    transitions[(pos_from, pos_to)] += 1
+        
+        if transitions:
+            print(f"\nTop 10 most common position transitions:")
+            for (pos_from, pos_to), count in sorted(transitions.items(), key=lambda x: x[1], reverse=True)[:10]:
+                # Use ASCII arrow for Windows compatibility
+                print(f"  {pos_from} -> {pos_to}: {count} times")
+        
+        print("\n" + "="*60 + "\n")
     
     def _create_subsequences(self, events: List[PassEvent], 
                             min_len: int, max_len: int) -> List[PassSequence]:
@@ -274,6 +503,7 @@ class PassSimilarityAnalyzer:
         """Calculate substitution cost between two pattern elements."""
         cost = 0.0
         
+        # Exact position match
         if p1['from'] != p2['from']:
             cost += 0.5
         if p1['to'] != p2['to']:
@@ -339,11 +569,15 @@ class PassSimilarityAnalyzer:
         trans1 = self._build_transition_matrix(seq1)
         trans2 = self._build_transition_matrix(seq2)
         
+        # Get all positions from both sequences
+        all_positions = set(list(trans1.keys()) + list(trans2.keys()))
+        all_positions = set([pos for pair in all_positions for pos in pair])
+        
         similarity = 0.0
         count = 0
         
-        for pos_from in self.position_hierarchy.keys():
-            for pos_to in self.position_hierarchy.keys():
+        for pos_from in all_positions:
+            for pos_to in all_positions:
                 if (pos_from, pos_to) in trans1 or (pos_from, pos_to) in trans2:
                     val1 = trans1.get((pos_from, pos_to), 0)
                     val2 = trans2.get((pos_from, pos_to), 0)
@@ -455,11 +689,12 @@ class PassSimilarityAnalyzer:
             report.append(f"Match: Game {result.seq1.game_id} vs Game {result.seq2.game_id}")
             report.append(f"Sequence Length: {len(result.seq1)} passes")
             report.append(f"\nDetailed Scores:")
-            report.append(f"  * Sequence Similarity: {result.sequence_similarity:.2%}")
-            report.append(f"  * Spatial Similarity: {result.spatial_similarity:.2%}")
-            report.append(f"  * Temporal Similarity: {result.temporal_similarity:.2%}")
+            report.append(f"  * Sequence Similarity:   {result.sequence_similarity:.2%}")
+            report.append(f"  * Spatial Similarity:    {result.spatial_similarity:.2%}")
+            report.append(f"  * Temporal Similarity:   {result.temporal_similarity:.2%}")
             report.append(f"  * Structural Similarity: {result.structural_similarity:.2%}")
             
+            # Use ASCII arrow for Windows compatibility
             pattern1_str = ' -> '.join([f"{e['from']}->{e['to']}" for e in result.seq1.pattern])
             pattern2_str = ' -> '.join([f"{e['from']}->{e['to']}" for e in result.seq2.pattern])
             

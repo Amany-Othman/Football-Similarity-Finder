@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pass Similarity Results Viewer</title>
+    <title>Pass Similarity Visualizer - Football Pitch View</title>
     <style>
         * {
             margin: 0;
@@ -35,7 +35,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -78,6 +78,12 @@
             box-shadow: 0 8px 24px rgba(0, 255, 157, 0.3);
         }
 
+        .btn-secondary {
+            background: #1f2e28;
+            color: #00ff9d;
+            margin-left: 1rem;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -113,56 +119,196 @@
             display: block;
         }
 
-        .similarity-card {
+        .match-card {
             background: #121816;
             border: 1px solid #1f2e28;
             border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
             transition: all 0.3s;
         }
 
-        .similarity-card:hover {
+        .match-card:hover {
             border-color: #00ff9d;
-            transform: translateX(4px);
         }
 
-        .card-header {
+        .match-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #1f2e28;
+            border-bottom: 2px solid #1f2e28;
         }
 
-        .card-title {
-            font-size: 1.25rem;
+        .match-title {
+            font-size: 1.5rem;
             font-weight: 600;
         }
 
-        .similarity-score {
+        .similarity-badge {
             font-size: 2rem;
             font-weight: 700;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
         }
 
-        .score-high {
+        .badge-high {
+            background: rgba(0, 255, 157, 0.2);
             color: #00ff9d;
         }
 
-        .score-medium {
+        .badge-medium {
+            background: rgba(255, 215, 0, 0.2);
             color: #ffd700;
         }
 
-        .score-low {
+        .badge-low {
+            background: rgba(255, 77, 106, 0.2);
             color: #ff4d6a;
+        }
+
+        .pitch-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .pitch-container {
+            position: relative;
+        }
+
+        .pitch-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #00ff9d;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .football-pitch {
+            width: 100%;
+            aspect-ratio: 105/68;
+            background: #1a5c3f;
+            border: 3px solid #fff;
+            position: relative;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* Pitch markings */
+        .pitch-marking {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .halfway-line {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            transform: translateX(-50%);
+        }
+
+        .center-circle {
+            left: 50%;
+            top: 50%;
+            width: 20%;
+            height: 29.4%;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .center-spot {
+            left: 50%;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: none;
+        }
+
+        .penalty-area-left {
+            left: 0;
+            top: 50%;
+            width: 16%;
+            height: 60%;
+            transform: translateY(-50%);
+        }
+
+        .penalty-area-right {
+            right: 0;
+            top: 50%;
+            width: 16%;
+            height: 60%;
+            transform: translateY(-50%);
+        }
+
+        .goal-area-left {
+            left: 0;
+            top: 50%;
+            width: 6%;
+            height: 30%;
+            transform: translateY(-50%);
+        }
+
+        .goal-area-right {
+            right: 0;
+            top: 50%;
+            width: 6%;
+            height: 30%;
+            transform: translateY(-50%);
+        }
+
+        /* Pass visualization */
+        .pass-arrow {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .pass-line {
+            stroke-width: 3;
+            fill: none;
+            opacity: 0.8;
+        }
+
+        .pass-marker {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            border: 2px solid #fff;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .position-label {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff9d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 100;
+            pointer-events: none;
         }
 
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
-            margin: 1rem 0;
+            margin: 1.5rem 0;
         }
 
         .metric {
@@ -185,28 +331,50 @@
             margin-top: 0.25rem;
         }
 
-        .pattern-box {
+        .pattern-info {
             background: #0a0f0d;
             padding: 1rem;
             border-radius: 6px;
             margin-top: 1rem;
-            font-family: 'Courier New', monospace;
         }
 
-        .pattern-label {
-            color: #00ff9d;
+        .pattern-sequence {
+            font-family: 'Courier New', monospace;
+            color: #e8f5f0;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(0, 255, 157, 0.05);
+            border-radius: 4px;
+        }
+
+        .legend {
+            background: #0a0f0d;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .legend-title {
             font-weight: 600;
+            color: #00ff9d;
             margin-bottom: 0.5rem;
         }
 
-        .pattern-text {
-            color: #e8f5f0;
-            word-break: break-word;
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
         }
 
-        .arrow {
-            color: #00ff9d;
-            margin: 0 0.5rem;
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            border: 2px solid #fff;
         }
 
         input[type="file"] {
@@ -220,24 +388,62 @@
             border-radius: 6px;
             margin-bottom: 2rem;
         }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            background: #121816;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #1f2e28;
+        }
+
+        .control-group label {
+            display: block;
+            color: #8fa39a;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .control-group select,
+        .control-group input {
+            background: #0a0f0d;
+            color: #e8f5f0;
+            border: 1px solid #1f2e28;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .pitch-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>⚽ Pass Similarity Results Viewer</h1>
-        <p>View your pre-analyzed similarity results</p>
+        <h1>⚽ Pass Similarity Visualizer</h1>
+        <p>Interactive pitch visualization to validate algorithm results</p>
     </div>
 
     <div class="container">
         <div class="info-box">
-            <p><strong>📁 Load Results:</strong> Select your <code>similarity_results.json</code> file to view the
-                analysis results from the Python script.</p>
+            <p><strong>📁 Load Results:</strong> Upload your <code>similarity_results.json</code> file to see
+                side-by-side pitch visualizations of similar passing patterns.</p>
         </div>
 
         <div class="upload-section" id="uploadSection">
             <h2>📊 Load Results File</h2>
-            <p style="color: #8fa39a; margin-bottom: 1.5rem;">Click to select similarity_results.json</p>
+            <p style="color: #8fa39a; margin-bottom: 1.5rem;">Click to select similarity_results.json or
+                similarity_results_with_positions.json</p>
             <button class="btn" onclick="document.getElementById('fileInput').click()">
                 Choose File
             </button>
@@ -246,11 +452,81 @@
 
         <div class="results-section" id="resultsSection">
             <div class="stats-grid" id="statsGrid"></div>
+
+            <div class="controls" id="controls">
+                <div class="control-group">
+                    <label>Filter by Similarity:</label>
+                    <select id="similarityFilter">
+                        <option value="all">All Matches</option>
+                        <option value="high">High (≥90%)</option>
+                        <option value="medium">Medium (70-90%)</option>
+                        <option value="low">Low (<70%)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Show Only:</label>
+                    <select id="gameFilter">
+                        <option value="all">All Games</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" onclick="exportView()">📸 Export View</button>
+            </div>
+
             <div id="resultsContent"></div>
         </div>
     </div>
 
     <script>
+        let globalData = null;
+
+        // Position colors for different player positions
+        const positionColors = {
+            'GK': '#FFD700',
+            'LB': '#4169E1',
+            'RB': '#4169E1',
+            'LCB': '#1E90FF',
+            'RCB': '#1E90FF',
+            'CB': '#1E90FF',
+            'CM': '#32CD32',
+            'LW': '#FF6347',
+            'RW': '#FF6347',
+            'AM': '#7CFC00',
+            'CF': '#FF4500',
+            'ST': '#FF4500',
+            'default': '#9370DB'
+        };
+
+        // Approximate pitch positions for each player position (percentage of pitch)
+        const positionCoordinates = {
+            'GK': { x: 5, y: 50 },
+            'LCB': { x: 20, y: 30 },
+            'RCB': { x: 20, y: 70 },
+            'CB': { x: 20, y: 50 },
+            'LB': { x: 25, y: 15 },
+            'RB': { x: 25, y: 85 },
+            'CM': { x: 45, y: 50 },
+            'LW': { x: 60, y: 15 },
+            'RW': { x: 60, y: 85 },
+            'AM': { x: 60, y: 50 },
+            'CF': { x: 75, y: 50 },
+            'ST': { x: 75, y: 50 }
+        };
+
+        function getPositionColor(position) {
+            return positionColors[position] || positionColors['default'];
+        }
+
+        function getPositionCoordinates(position, index, total) {
+            const base = positionCoordinates[position] || { x: 50, y: 50 };
+            // Add slight variation based on index to avoid complete overlap
+            const variation = 5;
+            const offset = (index - total / 2) * variation;
+            return {
+                x: Math.max(5, Math.min(95, base.x + (Math.random() - 0.5) * variation)),
+                y: Math.max(5, Math.min(95, base.y + offset))
+            };
+        }
+
         document.getElementById('fileInput').addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file) {
@@ -258,12 +534,25 @@
                 reader.onload = function (event) {
                     try {
                         const data = JSON.parse(event.target.result);
+                        globalData = data;
                         displayResults(data);
                     } catch (error) {
                         alert('Error reading file: ' + error.message);
                     }
                 };
                 reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('similarityFilter').addEventListener('change', function () {
+            if (globalData) {
+                displayResults(globalData);
+            }
+        });
+
+        document.getElementById('gameFilter').addEventListener('change', function () {
+            if (globalData) {
+                displayResults(globalData);
             }
         });
 
@@ -274,16 +563,52 @@
             const results = data.results;
             const config = data.config;
 
+            // Populate game filter
+            const games = new Set();
+            results.forEach(r => {
+                games.add(r.game1);
+                games.add(r.game2);
+            });
+            const gameFilter = document.getElementById('gameFilter');
+            if (gameFilter.options.length === 1) { // Only has "All Games"
+                Array.from(games).sort((a, b) => a - b).forEach(game => {
+                    const option = document.createElement('option');
+                    option.value = game;
+                    option.textContent = `Game ${game}`;
+                    gameFilter.appendChild(option);
+                });
+            }
+
+            // Filter results
+            const similarityFilter = document.getElementById('similarityFilter').value;
+            const selectedGame = document.getElementById('gameFilter').value;
+
+            let filteredResults = results.filter(r => {
+                const score = r.overall_score * 100;
+                let passesFilter = true;
+
+                if (similarityFilter === 'high' && score < 90) passesFilter = false;
+                if (similarityFilter === 'medium' && (score < 70 || score >= 90)) passesFilter = false;
+                if (similarityFilter === 'low' && score >= 70) passesFilter = false;
+
+                if (selectedGame !== 'all' && r.game1 != selectedGame && r.game2 != selectedGame) {
+                    passesFilter = false;
+                }
+
+                return passesFilter;
+            });
+
             // Calculate statistics
-            const avgScore = results.reduce((sum, r) => sum + r.overall_score, 0) / results.length;
-            const avgSeq = results.reduce((sum, r) => sum + r.sequence_similarity, 0) / results.length;
-            const avgSpatial = results.reduce((sum, r) => sum + r.spatial_similarity, 0) / results.length;
+            const avgScore = filteredResults.reduce((sum, r) => sum + r.overall_score, 0) / filteredResults.length;
+            const avgSeq = filteredResults.reduce((sum, r) => sum + r.sequence_similarity, 0) / filteredResults.length;
+            const avgSpatial = filteredResults.reduce((sum, r) => sum + r.spatial_similarity, 0) / filteredResults.length;
+            const avgTemporal = filteredResults.reduce((sum, r) => sum + r.temporal_similarity, 0) / filteredResults.length;
 
             // Display stats
             document.getElementById('statsGrid').innerHTML = `
                 <div class="stat-card">
-                    <div class="stat-value">${results.length}</div>
-                    <div class="stat-label">Total Matches Found</div>
+                    <div class="stat-value">${filteredResults.length}</div>
+                    <div class="stat-label">Matches Shown</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value">${(avgScore * 100).toFixed(1)}%</div>
@@ -300,55 +625,213 @@
             `;
 
             // Display results
-            const resultsHTML = results.map((result, index) => {
-                const score = result.overall_score * 100;
-                const scoreClass = score >= 85 ? 'score-high' :
-                    score >= 70 ? 'score-medium' : 'score-low';
-
-                return `
-                    <div class="similarity-card">
-                        <div class="card-header">
-                            <div class="card-title">Match #${index + 1}</div>
-                            <div class="similarity-score ${scoreClass}">${score.toFixed(1)}%</div>
-                        </div>
-
-                        <p style="color: #8fa39a; margin-bottom: 1rem;">
-                            Game ${result.game1} ↔ Game ${result.game2}
-                        </p>
-
-                        <div class="metrics-grid">
-                            <div class="metric">
-                                <div class="metric-label">Sequence</div>
-                                <div class="metric-value">${(result.sequence_similarity * 100).toFixed(1)}%</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Spatial</div>
-                                <div class="metric-value">${(result.spatial_similarity * 100).toFixed(1)}%</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Temporal</div>
-                                <div class="metric-value">${(result.temporal_similarity * 100).toFixed(1)}%</div>
-                            </div>
-                            <div class="metric">
-                                <div class="metric-label">Structural</div>
-                                <div class="metric-value">${(result.structural_similarity * 100).toFixed(1)}%</div>
-                            </div>
-                        </div>
-
-                        <div class="pattern-box">
-                            <div class="pattern-label">Pattern 1:</div>
-                            <div class="pattern-text">${result.pattern1.join(' → ')}</div>
-                        </div>
-
-                        <div class="pattern-box">
-                            <div class="pattern-label">Pattern 2:</div>
-                            <div class="pattern-text">${result.pattern2.join(' → ')}</div>
-                        </div>
-                    </div>
-                `;
+            const resultsHTML = filteredResults.map((result, index) => {
+                return createMatchCard(result, index + 1);
             }).join('');
 
             document.getElementById('resultsContent').innerHTML = resultsHTML;
+        }
+
+        function createMatchCard(result, rank) {
+            const score = result.overall_score * 100;
+            const badgeClass = score >= 90 ? 'badge-high' :
+                score >= 70 ? 'badge-medium' : 'badge-low';
+
+            const pattern1Positions = extractPositions(result.pattern1);
+            const pattern2Positions = extractPositions(result.pattern2);
+
+            const pitch1 = createPitchVisualization(pattern1Positions, 'pitch1-' + rank);
+            const pitch2 = createPitchVisualization(pattern2Positions, 'pitch2-' + rank);
+
+            return `
+                <div class="match-card">
+                    <div class="match-header">
+                        <div class="match-title">Match #${rank}</div>
+                        <div class="similarity-badge ${badgeClass}">${score.toFixed(1)}%</div>
+                    </div>
+
+                    <p style="color: #8fa39a; margin-bottom: 1rem;">
+                        Game ${result.game1} ↔ Game ${result.game2}
+                    </p>
+
+                    <div class="metrics-grid">
+                        <div class="metric">
+                            <div class="metric-label">Sequence</div>
+                            <div class="metric-value">${(result.sequence_similarity * 100).toFixed(1)}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Spatial</div>
+                            <div class="metric-value">${(result.spatial_similarity * 100).toFixed(1)}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Temporal</div>
+                            <div class="metric-value">${(result.temporal_similarity * 100).toFixed(1)}%</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Structural</div>
+                            <div class="metric-value">${(result.structural_similarity * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+
+                    <div class="pitch-comparison">
+                        <div class="pitch-container">
+                            <div class="pitch-label">Pattern 1 (Game ${result.game1})</div>
+                            ${pitch1}
+                            <div class="pattern-info">
+                                <div class="pattern-sequence">${result.pattern1.join(' → ')}</div>
+                            </div>
+                        </div>
+                        <div class="pitch-container">
+                            <div class="pitch-label">Pattern 2 (Game ${result.game2})</div>
+                            ${pitch2}
+                            <div class="pattern-info">
+                                <div class="pattern-sequence">${result.pattern2.join(' → ')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-title">Position Legend:</div>
+                        ${createLegend(pattern1Positions.concat(pattern2Positions))}
+                    </div>
+                </div>
+            `;
+        }
+
+        function extractPositions(patternArray) {
+            const positions = [];
+            patternArray.forEach(pattern => {
+                const parts = pattern.split('->');
+                if (parts.length === 2) {
+                    positions.push({ from: parts[0], to: parts[1] });
+                }
+            });
+            return positions;
+        }
+
+        function createPitchVisualization(positions, id) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.style.position = 'absolute';
+            svg.style.top = '0';
+            svg.style.left = '0';
+
+            // Track all positions involved
+            const allPositions = new Set();
+            positions.forEach(p => {
+                allPositions.add(p.from);
+                allPositions.add(p.to);
+            });
+
+            // Assign coordinates to each position
+            const posCoords = {};
+            let index = 0;
+            allPositions.forEach(pos => {
+                posCoords[pos] = getPositionCoordinates(pos, index, allPositions.size);
+                index++;
+            });
+
+            // Draw passes
+            const colors = ['#00ff9d', '#00cc7d', '#00aa6d', '#00885d', '#00664d'];
+            positions.forEach((pass, i) => {
+                const from = posCoords[pass.from];
+                const to = posCoords[pass.to];
+                const color = colors[i % colors.length];
+
+                // Draw line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', from.x);
+                line.setAttribute('y1', from.y);
+                line.setAttribute('x2', to.x);
+                line.setAttribute('y2', to.y);
+                line.setAttribute('stroke', color);
+                line.setAttribute('stroke-width', '0.8');
+                line.setAttribute('opacity', '0.6');
+                line.setAttribute('marker-end', `url(#arrow-${id}-${i})`);
+                svg.appendChild(line);
+
+                // Create arrow marker
+                const defs = svg.querySelector('defs') || document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                if (!svg.querySelector('defs')) svg.appendChild(defs);
+
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', `arrow-${id}-${i}`);
+                marker.setAttribute('markerWidth', '10');
+                marker.setAttribute('markerHeight', '10');
+                marker.setAttribute('refX', '5');
+                marker.setAttribute('refY', '3');
+                marker.setAttribute('orient', 'auto');
+                marker.setAttribute('markerUnits', 'strokeWidth');
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M0,0 L0,6 L9,3 z');
+                path.setAttribute('fill', color);
+                marker.appendChild(path);
+                defs.appendChild(marker);
+
+                // Draw pass number
+                const midX = (from.x + to.x) / 2;
+                const midY = (from.y + to.y) / 2;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', midX);
+                text.setAttribute('y', midY);
+                text.setAttribute('fill', '#fff');
+                text.setAttribute('font-size', '3');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('text-anchor', 'middle');
+                text.textContent = i + 1;
+                svg.appendChild(text);
+            });
+
+            // Draw position markers
+            const markers = [];
+            Object.keys(posCoords).forEach(pos => {
+                const coord = posCoords[pos];
+                const color = getPositionColor(pos);
+
+                markers.push(`
+                    <div class="pass-marker" style="left: ${coord.x}%; top: ${coord.y}%; background: ${color};">
+                        <span style="color: #000;">${pos}</span>
+                    </div>
+                `);
+            });
+
+            return `
+                <div class="football-pitch">
+                    <div class="pitch-marking halfway-line"></div>
+                    <div class="pitch-marking center-circle"></div>
+                    <div class="pitch-marking center-spot"></div>
+                    <div class="pitch-marking penalty-area-left"></div>
+                    <div class="pitch-marking penalty-area-right"></div>
+                    <div class="pitch-marking goal-area-left"></div>
+                    <div class="pitch-marking goal-area-right"></div>
+                    ${svg.outerHTML}
+                    ${markers.join('')}
+                </div>
+            `;
+        }
+
+        function createLegend(positions) {
+            const allPositions = new Set();
+            positions.forEach(p => {
+                allPositions.add(p.from);
+                allPositions.add(p.to);
+            });
+
+            return Array.from(allPositions).map(pos => {
+                const color = getPositionColor(pos);
+                return `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: ${color};"></div>
+                        <span>${pos}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function exportView() {
+            alert('Export functionality would save current view as PDF or image. Implementation can be added with html2canvas library.');
         }
     </script>
 </body>

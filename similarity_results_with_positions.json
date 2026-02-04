@@ -1,0 +1,576 @@
+{
+  "config": {
+    "min_sequence_length": 4,
+    "max_sequence_length": 8,
+    "similarity_threshold": 0.65,
+    "position_weight": 0.3,
+    "spatial_weight": 0.25,
+    "temporal_weight": 0.15,
+    "structural_weight": 0.15,
+    "sequence_weight": 0.15,
+    "same_game_comparison": true,
+    "max_time_gap": 8.0,
+    "spatial_tolerance": 10.0,
+    "ngram_size": 3,
+    "use_detailed_positions": true
+  },
+  "num_results": 20,
+  "results": [
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9317816816652293,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9827578233320152,
+      "temporal_similarity": 0.9801981722148361,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "CM->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->LCB",
+        "LCB->LB",
+        "LB->AM",
+        "AM->RCB",
+        "RCB->RB"
+      ],
+      "pattern2": [
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->LCB",
+        "LCB->LB",
+        "LB->AM",
+        "AM->RCB",
+        "RCB->RB"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9286633178627928,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9949904778171965,
+      "temporal_similarity": 0.9434856084375773,
+      "structural_similarity": 0.9642857142857142,
+      "pattern1": [
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->CM"
+      ],
+      "pattern2": [
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9273764909262223,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9754093688445172,
+      "temporal_similarity": 0.9675419438149062,
+      "structural_similarity": 0.9642857142857143,
+      "pattern1": [
+        "CM->LB",
+        "LB->CM",
+        "CM->CM",
+        "CM->LCB",
+        "LCB->CM",
+        "CM->LCB",
+        "LCB->RCB",
+        "RCB->CM"
+      ],
+      "pattern2": [
+        "CM->LB",
+        "LB->CM",
+        "CM->CM",
+        "CM->LCB",
+        "LCB->CM",
+        "CM->LCB",
+        "LCB->RCB"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9273186878499362,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9829764455459502,
+      "temporal_similarity": 0.950080509756324,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "CM->GK",
+        "GK->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->LCB",
+        "LCB->RCB"
+      ],
+      "pattern2": [
+        "CM->GK",
+        "GK->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->LCB"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9272588978376168,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9836577115854297,
+      "temporal_similarity": 0.948546466275063,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "CM->RB",
+        "RB->RCB",
+        "RCB->LCB",
+        "LCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->CM",
+        "CM->LCB"
+      ],
+      "pattern2": [
+        "RB->RCB",
+        "RCB->LCB",
+        "LCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->CM",
+        "CM->LCB"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9272382440019997,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.983315704895771,
+      "temporal_similarity": 0.9489787851870451,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "RCB->LCB",
+        "LCB->LW",
+        "LW->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LCB",
+        "LCB->LB",
+        "LB->CM"
+      ],
+      "pattern2": [
+        "LCB->LW",
+        "LW->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LCB",
+        "LCB->LB",
+        "LB->CM"
+      ]
+    },
+    {
+      "game1": 3846,
+      "game2": 3846,
+      "overall_score": 0.926480969599021,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9816956758865562,
+      "temporal_similarity": 0.9466303375158793,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "LCB->CM",
+        "CM->LCB",
+        "LCB->GK",
+        "GK->RB",
+        "RB->LCB",
+        "LCB->LB",
+        "LB->LCB",
+        "LCB->LW"
+      ],
+      "pattern2": [
+        "CM->LCB",
+        "LCB->GK",
+        "GK->RB",
+        "RB->LCB",
+        "LCB->LB",
+        "LB->LCB",
+        "LCB->LW"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.926384103789176,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9772835102568641,
+      "temporal_similarity": 0.9533381748330662,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "RCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->AM",
+        "AM->LB",
+        "LB->LCB",
+        "LCB->RW",
+        "RW->RB"
+      ],
+      "pattern2": [
+        "RCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->AM",
+        "AM->LB",
+        "LB->LCB",
+        "LCB->RW"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9262235711932607,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9887568319355708,
+      "temporal_similarity": 0.9447528975862625,
+      "structural_similarity": 0.9571428571428571,
+      "pattern1": [
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB"
+      ],
+      "pattern2": [
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB"
+      ]
+    },
+    {
+      "game1": 3846,
+      "game2": 3846,
+      "overall_score": 0.9256548143047996,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.986776530097966,
+      "temporal_similarity": 0.9326545452020537,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "LB->LW",
+        "LW->LB",
+        "LB->CM",
+        "CM->CM",
+        "CM->RCB",
+        "RCB->RB",
+        "RB->RCB",
+        "RCB->LCB"
+      ],
+      "pattern2": [
+        "LB->LW",
+        "LW->LB",
+        "LB->CM",
+        "CM->CM",
+        "CM->RCB",
+        "RCB->RB",
+        "RB->RCB"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9247930428809346,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9922658832113809,
+      "temporal_similarity": 0.9177604805205942,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "LCB->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->LCB",
+        "LCB->LW",
+        "LW->LCB"
+      ],
+      "pattern2": [
+        "LCB->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->LCB",
+        "LCB->LW"
+      ]
+    },
+    {
+      "game1": 3813,
+      "game2": 3813,
+      "overall_score": 0.9247851335845338,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.98214605698312,
+      "temporal_similarity": 0.9345741289250254,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "LB->RCB",
+        "RCB->RCB",
+        "RCB->RB",
+        "RB->CM",
+        "CM->LB",
+        "LB->CF",
+        "CF->RCB",
+        "RCB->LB"
+      ],
+      "pattern2": [
+        "RCB->RCB",
+        "RCB->RB",
+        "RB->CM",
+        "CM->LB",
+        "LB->CF",
+        "CF->RCB",
+        "RCB->LB"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.924208564339239,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9937995337876898,
+      "temporal_similarity": 0.9633912059487777,
+      "structural_similarity": 0.9166666666666666,
+      "pattern1": [
+        "CM->RCB",
+        "RCB->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM"
+      ],
+      "pattern2": [
+        "RCB->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM",
+        "CM->CM"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.9231223659827941,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9778215123937631,
+      "temporal_similarity": 0.9306965858956878,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "RCB->LCB",
+        "LCB->LB",
+        "LB->LW",
+        "LW->LB",
+        "LB->GK",
+        "GK->LCB",
+        "LCB->CM",
+        "CM->RB"
+      ],
+      "pattern2": [
+        "LCB->LB",
+        "LB->LW",
+        "LW->LB",
+        "LB->GK",
+        "GK->LCB",
+        "LCB->CM",
+        "CM->RB"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.9229013126000434,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.975732536893507,
+      "temporal_similarity": 0.9514545225111112,
+      "structural_similarity": 0.95,
+      "pattern1": [
+        "RB->RCB",
+        "RCB->LCB",
+        "LCB->RCB",
+        "RCB->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->LCB",
+        "LCB->RCB"
+      ],
+      "pattern2": [
+        "RCB->LCB",
+        "LCB->RCB",
+        "RCB->LB",
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->LCB",
+        "LCB->RCB"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9213819264735257,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9962607967927646,
+      "temporal_similarity": 0.9071115151688977,
+      "structural_similarity": 0.95,
+      "pattern1": [
+        "LB->CM",
+        "CM->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->CM"
+      ],
+      "pattern2": [
+        "CM->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->CM",
+        "CM->RCB",
+        "RCB->CM"
+      ]
+    },
+    {
+      "game1": 3831,
+      "game2": 3831,
+      "overall_score": 0.9207209256499653,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.989563997113358,
+      "temporal_similarity": 0.8951161758108378,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "LCB->LB",
+        "LB->LW",
+        "LW->LB",
+        "LB->GK",
+        "GK->LCB",
+        "LCB->CM",
+        "CM->RB",
+        "RB->RCB"
+      ],
+      "pattern2": [
+        "LCB->LB",
+        "LB->LW",
+        "LW->LB",
+        "LB->GK",
+        "GK->LCB",
+        "LCB->CM",
+        "CM->RB"
+      ]
+    },
+    {
+      "game1": 10505,
+      "game2": 10505,
+      "overall_score": 0.9206090953448638,
+      "sequence_similarity": 0.875,
+      "spatial_similarity": 0.9740739211892735,
+      "temporal_similarity": 0.9201874336503028,
+      "structural_similarity": 0.9687500000000002,
+      "pattern1": [
+        "CM->LW",
+        "LW->RB",
+        "RB->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->GK",
+        "GK->LB",
+        "LB->CF"
+      ],
+      "pattern2": [
+        "LW->RB",
+        "RB->CM",
+        "CM->RB",
+        "RB->RCB",
+        "RCB->GK",
+        "GK->LB",
+        "LB->CF"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.920584702924472,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.984196638823029,
+      "temporal_similarity": 0.9662913765601401,
+      "structural_similarity": 0.9591836734693878,
+      "pattern1": [
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RW",
+        "RW->CM",
+        "CM->CM",
+        "CM->RB"
+      ],
+      "pattern2": [
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->RW",
+        "RW->CM",
+        "CM->CM",
+        "CM->RB"
+      ]
+    },
+    {
+      "game1": 10513,
+      "game2": 10513,
+      "overall_score": 0.9183294270145974,
+      "sequence_similarity": 0.8571428571428572,
+      "spatial_similarity": 0.9857595108717346,
+      "temporal_similarity": 0.9475176302317273,
+      "structural_similarity": 0.9603174603174603,
+      "pattern1": [
+        "LB->LCB",
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->CM"
+      ],
+      "pattern2": [
+        "LCB->RCB",
+        "RCB->CM",
+        "CM->CM",
+        "CM->LB",
+        "LB->LCB",
+        "LCB->CM"
+      ]
+    }
+  ]
+}

@@ -1,114 +1,111 @@
 """
-Diagnostic script to understand the sequence extraction issue
+Diagnostic Script - Check Player ID Matching Issue
+===================================================
 """
+
 import pandas as pd
 
-# Load and prepare data
-print("=" * 80)
-print("DIAGNOSTIC - Why are no sequences being extracted?")
-print("=" * 80)
-print()
-
-# File paths
-raw_data_path = r'D:\Projects\dsp\Football-Similarity\data\Raw_Encoded_England_Team_Only_Possession_Features.csv'
-normalized_data_path = r'D:\Projects\dsp\Football-Similarity\data\Normalized_Oredered_England_Team_Only.csv'
-
 # Load the data
+raw_data_path = r'F:\Football-Similarity-Finder\data\Raw_Encoded_England_Team_Only_Possession_Features.csv'
+normalized_data_path = r'F:\Football-Similarity-Finder\data\Normalized_Oredered_England_Team_Only.csv'
+
 raw_df = pd.read_csv(raw_data_path)
 normalized_df = pd.read_csv(normalized_data_path)
 
-# Rename columns
-raw_df = raw_df.rename(columns={
-    'possessioneventid': 'possessione',
-    'passerplayerid': 'playerpass',
-    'receiverplayerid': 'receiveplay',
-    'possessioneventtype': 'eventtype'
-})
-
-normalized_df = normalized_df.rename(columns={
-    'possessioneventid': 'possessione',
-    'possessioneventtype': 'eventtype'
-})
-
-print("1. CHECKING RAW DATA STRUCTURE")
-print("-" * 80)
-print(f"Total rows: {len(raw_df)}")
-print(f"Columns: {list(raw_df.columns)}")
+print("="*80)
+print("DIAGNOSTIC: Checking Player ID Matching")
+print("="*80)
 print()
 
-# Check for PASS events
-print("Event types in data:")
-if 'eventtype' in raw_df.columns:
-    event_counts = raw_df['eventtype'].value_counts()
-    print(event_counts)
-else:
-    print("ERROR: 'eventtype' column not found!")
+# Check raw data player IDs
+print("RAW DATA SAMPLE (first 10 rows):")
+print("-"*80)
+print(raw_df[['gameid', 'passerplayerid', 'receiverplayerid']].head(10))
 print()
 
-# Check possession grouping
-print("2. CHECKING POSSESSION GROUPING")
-print("-" * 80)
-grouped = raw_df.groupby(['gameid', 'possessione'])
-print(f"Number of unique possessions: {len(grouped)}")
+print("RAW DATA Player ID Types:")
+print(f"  passerplayerid type: {type(raw_df['passerplayerid'].iloc[0])}")
+print(f"  receiverplayerid type: {type(raw_df['receiverplayerid'].iloc[0])}")
+print(f"  Sample passerplayerid values: {raw_df['passerplayerid'].unique()[:10]}")
 print()
 
-# Sample a few possessions
-print("Sample possession details (first 5 possessions):")
-for i, ((game, poss), group) in enumerate(grouped):
-    if i >= 5:
-        break
-    print(f"\nPossession {i+1}: Game={game}, Possession={poss}")
-    print(f"  Events: {len(group)}")
-    if 'eventtype' in group.columns:
-        print(f"  Event types: {group['eventtype'].tolist()}")
-    if 'playerpass' in group.columns and 'receiveplay' in group.columns:
-        print(f"  Passers: {group['playerpass'].tolist()}")
-        print(f"  Receivers: {group['receiveplay'].tolist()}")
-    print(f"  Times: {group['starttime'].tolist()}")
-
+# Check normalized data player IDs
+print("NORMALIZED DATA SAMPLE (first 10 rows):")
+print("-"*80)
+print(normalized_df[['gameid', 'playerid', 'positiongrouptype']].head(10))
 print()
-print("3. CHECKING FOR PASS SEQUENCES")
-print("-" * 80)
 
-# Manually check for sequences
-sequence_count = 0
-pass_count = 0
+print("NORMALIZED DATA Player ID Types:")
+print(f"  playerid type: {type(normalized_df['playerid'].iloc[0])}")
+print(f"  Sample playerid values: {normalized_df['playerid'].unique()[:10]}")
+print()
 
-for (game, poss), group in grouped:
-    # Filter for PASS events
-    passes = group[group['eventtype'] == 'PASS'] if 'eventtype' in group.columns else group
-    pass_count += len(passes)
+# Check for matching
+print("="*80)
+print("MATCHING CHECK")
+print("="*80)
+print()
+
+# Get unique player IDs from both datasets
+raw_players = set(raw_df['passerplayerid'].astype(str).unique())
+raw_players.update(raw_df['receiverplayerid'].astype(str).unique())
+
+norm_players = set(normalized_df['playerid'].astype(str).unique())
+
+print(f"Unique players in RAW data: {len(raw_players)}")
+print(f"Unique players in NORMALIZED data: {len(norm_players)}")
+print(f"Players in BOTH datasets: {len(raw_players & norm_players)}")
+print(f"Players ONLY in RAW: {len(raw_players - norm_players)}")
+print(f"Players ONLY in NORMALIZED: {len(norm_players - raw_players)}")
+print()
+
+# Show examples of non-matching IDs
+if len(raw_players - norm_players) > 0:
+    print("Sample RAW player IDs NOT in NORMALIZED:")
+    print(list(raw_players - norm_players)[:10])
+    print()
+
+if len(norm_players - raw_players) > 0:
+    print("Sample NORMALIZED player IDs NOT in RAW:")
+    print(list(norm_players - raw_players)[:10])
+    print()
+
+# Check if there's a game_id filtering issue
+print("="*80)
+print("GAME ID CHECK")
+print("="*80)
+print()
+
+raw_games = set(raw_df['gameid'].unique())
+norm_games = set(normalized_df['gameid'].unique())
+
+print(f"Games in RAW: {sorted(raw_games)}")
+print(f"Games in NORMALIZED: {sorted(norm_games)}")
+print(f"Games in BOTH: {sorted(raw_games & norm_games)}")
+print()
+
+# For each game, check player matching
+print("="*80)
+print("PER-GAME PLAYER MATCHING")
+print("="*80)
+print()
+
+for game_id in sorted(raw_games):
+    raw_game_players = set(raw_df[raw_df['gameid'] == game_id]['passerplayerid'].astype(str).unique())
+    raw_game_players.update(raw_df[raw_df['gameid'] == game_id]['receiverplayerid'].astype(str).unique())
     
-    if len(passes) >= 3:  # Minimum sequence length
-        sequence_count += 1
+    norm_game_players = set(normalized_df[normalized_df['gameid'] == game_id]['playerid'].astype(str).unique())
+    
+    overlap = len(raw_game_players & norm_game_players)
+    print(f"Game {game_id}:")
+    print(f"  RAW players: {len(raw_game_players)}")
+    print(f"  NORMALIZED players: {len(norm_game_players)}")
+    print(f"  Matching: {overlap} ({overlap/len(raw_game_players)*100:.1f}%)")
+    
+    if overlap < len(raw_game_players):
+        print(f"  Missing from NORMALIZED: {raw_game_players - norm_game_players}")
+    print()
 
-print(f"Total PASS events across all possessions: {pass_count}")
-print(f"Possessions with 3+ passes: {sequence_count}")
-print()
-
-# Check what event type values actually exist
-print("4. DETAILED EVENT TYPE ANALYSIS")
-print("-" * 80)
-print("Unique event type values:")
-if 'eventtype' in raw_df.columns:
-    unique_events = raw_df['eventtype'].unique()
-    for evt in unique_events:
-        count = len(raw_df[raw_df['eventtype'] == evt])
-        print(f"  '{evt}': {count} events")
-else:
-    print("No 'eventtype' column found")
-print()
-
-# Check a sample possession in detail
-print("5. SAMPLE POSSESSION IN DETAIL")
-print("-" * 80)
-first_poss = list(grouped.groups.keys())[0]
-sample = grouped.get_group(first_poss)
-print(f"Game ID: {first_poss[0]}, Possession ID: {first_poss[1]}")
-print()
-print(sample[['starttime', 'endtime', 'eventtype', 'playerpass', 'receiveplay']].to_string())
-print()
-
-print("=" * 80)
-print("DIAGNOSTIC COMPLETE")
-print("=" * 80)
+print("="*80)
+print("DIAGNOSIS COMPLETE")
+print("="*80)
