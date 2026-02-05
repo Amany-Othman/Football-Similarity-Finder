@@ -480,42 +480,46 @@ class PassSimilarityAnalyzer:
     
     def levenshtein_distance(self, pattern1: List[Dict], pattern2: List[Dict]) -> float:
         """Calculate Levenshtein distance between two patterns with custom costs."""
-        m, n = len(pattern1), len(pattern2)
+        m, n = len(pattern1), len(pattern2)  # Length of the two patterns (sequences of pass events)
         dp = [[0] * (n + 1) for _ in range(m + 1)]
+    # dp[i][j] represents the minimum cost to transform
+    
         
-        for i in range(m + 1):
-            dp[i][0] = i
+        for i in range(m + 1): # Transforming the first i elements of pattern1 into an empty pattern2
+            dp[i][0] = i  # requires i deletions
         for j in range(n + 1):
             dp[0][j] = j
         
-        for i in range(1, m + 1):
+        for i in range(1, m + 1):  # Fill the DP table
             for j in range(1, n + 1):
-                cost = self._pattern_cost(pattern1[i-1], pattern2[j-1])
+                cost = self._pattern_cost(pattern1[i-1], pattern2[j-1]) #Cost of substituting one pass event with another
                 dp[i][j] = min(
-                    dp[i-1][j] + 1,
-                    dp[i][j-1] + 1,
-                    dp[i-1][j-1] + cost
+                    dp[i-1][j] + 1,  #deletion
+                    dp[i][j-1] + 1,  #insertion 
+                    dp[i-1][j-1] + cost #substitution
                 )
         
-        return dp[m][n]
+        return dp[m][n]# The final Levenshtein distance between the two patterns
     
     def _pattern_cost(self, p1: Dict, p2: Dict) -> float:
-        """Calculate substitution cost between two pattern elements."""
+        """Calculate substitution cost between two pattern elements.
+         The cost reflects how different two pass events are
+    in terms of positions, duration, and event type  """
         cost = 0.0
         
         # Exact position match
-        if p1['from'] != p2['from']:
+        if p1['from'] != p2['from']:  # Penalty if the originating positions are different
             cost += 0.5
-        if p1['to'] != p2['to']:
+        if p1['to'] != p2['to']: # Penalty if the receiving positions are different
             cost += 0.5
         
         duration_diff = abs(p1['duration'] - p2['duration']) / max(p1['duration'], p2['duration'], 1)
         cost += duration_diff * 0.3
-        
+          # Small penalty if the event types are different
         if p1.get('event_type') != p2.get('event_type'):
             cost += 0.2
         
-        return min(cost, 1.0)
+        return min(cost, 1.0)  # Cap the substitution cost to a maximum of 1.0
     
     def calculate_spatial_similarity(self, seq1: PassSequence, seq2: PassSequence) -> float:
         """Calculate spatial similarity using ball position data."""
@@ -524,11 +528,14 @@ class PassSimilarityAnalyzer:
         
         if not coords1 or not coords2:
             return 0.0
-        
+        #Compute DTW distance between the two sequences of coordinates
         dtw_dist = self._dtw_distance(coords1, coords2)
+
+        #Normalize by maximum possible distance (field diagonal) and number of points
         max_dist = np.sqrt(100**2 + 100**2)
         normalized_dist = dtw_dist / (len(coords1) * max_dist)
         
+        # Convert distance to similarity (1 = identical, 0 = very different
         return max(0, 1 - normalized_dist)
     
     def _dtw_distance(self, series1: List[Tuple], series2: List[Tuple]) -> float:
@@ -538,63 +545,74 @@ class PassSimilarityAnalyzer:
         dtw[0, 0] = 0
         
         for i in range(1, n + 1):
-            for j in range(1, m + 1):
+            for j in range(1, m + 1):# Euclidean distance between two points 
                 cost = np.sqrt(
                     (series1[i-1][0] - series2[j-1][0])**2 + 
                     (series1[i-1][1] - series2[j-1][1])**2
                 )
+                #DTW recurrence: allows stretching/compressing time axis
                 dtw[i, j] = cost + min(dtw[i-1, j], dtw[i, j-1], dtw[i-1, j-1])
         
         return dtw[n, m]
     
     def calculate_temporal_similarity(self, seq1: PassSequence, seq2: PassSequence) -> float:
         """Calculate temporal similarity based on pass timing and rhythm."""
+        #Compute intervals between consecutive passes for seq1
         intervals1 = [seq1.events[i].start_time - seq1.events[i-1].end_time 
                      for i in range(1, len(seq1.events))]
+        #Compute intervals between consecutive passes for seq1
         intervals2 = [seq2.events[i].start_time - seq2.events[i-1].end_time 
                      for i in range(1, len(seq2.events))]
         
-        if not intervals1 or not intervals2:
+        if not intervals1 or not intervals2:# If any sequence has no intervals, similarity is 0
             return 0.0
-        
+          # Compare the average and variability of intervals
         mean_diff = abs(np.mean(intervals1) - np.mean(intervals2))
         std_diff = abs(np.std(intervals1) - np.std(intervals2))
-        
+
+
+           # Convert difference to similarity score (higher = more similar)
         temporal_sim = 1 / (1 + mean_diff + std_diff)
         
         return temporal_sim
     
     def calculate_structural_similarity(self, seq1: PassSequence, seq2: PassSequence) -> float:
         """Calculate structural similarity based on position transitions."""
+            # Build transition frequency matrix for each sequence
         trans1 = self._build_transition_matrix(seq1)
         trans2 = self._build_transition_matrix(seq2)
         
-        # Get all positions from both sequences
+         # Get all positions seen in both sequences
         all_positions = set(list(trans1.keys()) + list(trans2.keys()))
+         # Flatten pairs to get individual positions
         all_positions = set([pos for pair in all_positions for pos in pair])
         
         similarity = 0.0
         count = 0
         
+
+          # Compare each possible position-to-position transition
         for pos_from in all_positions:
             for pos_to in all_positions:
                 if (pos_from, pos_to) in trans1 or (pos_from, pos_to) in trans2:
-                    val1 = trans1.get((pos_from, pos_to), 0)
+                    val1 = trans1.get((pos_from, pos_to), 0)# frequency in seq1
                     val2 = trans2.get((pos_from, pos_to), 0)
                     similarity += 1 - abs(val1 - val2)
                     count += 1
-        
+
+
+        #Return average similarity (0 to 1)
         return similarity / count if count > 0 else 0.0
     
     def _build_transition_matrix(self, seq: PassSequence) -> Dict[Tuple[str, str], float]:
         """Build position transition frequency matrix."""
         transitions = defaultdict(int)
         total = 0
-        
+        #Count every from->to transition in the sequence
         for event in seq.events:
             transitions[(event.position_from, event.position_to)] += 1
             total += 1
-        
+        #Normalize counts to get frequencies (0 to 1)
         return {k: v / total for k, v in transitions.items()}
     
     def calculate_similarity(self, seq1: PassSequence, seq2: PassSequence) -> SimilarityResult:
